@@ -9,8 +9,21 @@ from pathlib import Path
 import torch
 from onpolicy.config import get_config
 from onpolicy.envs.env_wrappers import ShareSubprocVecEnv, ShareDummyVecEnv
+import random
 
 """Train script for SMAC."""
+
+PPO_EPOCH_RANGE = [5, 10, 15]
+PPO_EPOCH_PROB = [0.6, 0.2, 0.2]
+CLIP_RANGE = [0.05, 0.1, 0.15, 0.2, 0.3]
+CLIP_PROB = [0.3, 0.2, 0.2, 0.2, 0.1]
+GAIN_RANGE = [0.01, 1]
+GAIN_PROB = [0.7, 0.3]
+ALGORITHM_RANGE = ['mappo', 'rmappo']
+ALGORITHM_PROB = [0.3, 0.7]
+STACKED_FRAMES_RANGE = [1, 2, 4]
+STACKED_FRAMES_PROB = [0.3, 0.3, 0.4]
+
 
 def parse_smacv2_distribution(args):
     units = args.units.split('v')
@@ -129,6 +142,20 @@ def main(args):
     parser = get_config()
     all_args = parse_args(args, parser)
 
+    if all_args.random_search == True:
+        all_args.ppo_epoch = random.choices(PPO_EPOCH_RANGE, weights=PPO_EPOCH_PROB, k=1)[0]
+        all_args.clip_param = random.choices(CLIP_RANGE, weights=CLIP_PROB, k=1)[0]
+        all_args.gain = random.choices(GAIN_RANGE, weights=GAIN_PROB, k=1)[0]
+        all_args.algorithm_name = random.choices(ALGORITHM_RANGE, weights=ALGORITHM_PROB, k=1)[0]
+
+        print("ppo_epoch selected to be {}".format(all_args.ppo_epoch))
+        print("clip_param selected to be {}".format(all_args.clip_param))
+        print("gain selected to be {}".format(all_args.gain))
+        print("algorithm_name selected to be {}".format(all_args.algorithm_name))
+
+
+
+
     if all_args.algorithm_name == "rmappo":
         print("u are choosing to use rmappo, we set use_recurrent_policy to be True")
         all_args.use_recurrent_policy = True
@@ -137,6 +164,12 @@ def main(args):
         print("u are choosing to use mappo, we set use_recurrent_policy & use_naive_recurrent_policy to be False")
         all_args.use_recurrent_policy = False 
         all_args.use_naive_recurrent_policy = False
+
+        if all_args.random_search == True:
+            all_args.use_stacked_frames = True
+            all_args.stacked_frames = random.choices(STACKED_FRAMES_RANGE, weights=STACKED_FRAMES_PROB, k=1)[0]
+            print("stacked_frames selected to be {}".format(all_args.stacked_frames))
+    
     elif all_args.algorithm_name == "ippo":
         print("u are choosing to use ippo, we set use_centralized_V to be False")
         all_args.use_centralized_V = False
@@ -163,22 +196,23 @@ def main(args):
 
     if all_args.use_wandb:
         run = wandb.init(config=all_args,
-                         project=all_args.env_name,
-                         entity=all_args.user_name,
+                         project=all_args.env_name + "_" + "mappo",
                          notes=socket.gethostname(),
                          name=str(all_args.algorithm_name) + "_" +
-                              str(all_args.experiment_name) + "_" + 
-                              str(all_args.units) +
-                              "_seed" + str(all_args.seed),
+                              str(all_args.map_name) + "_" + 
+                            #   str(all_args.experiment_name) + "_" + 
+                              str(all_args.units),
+                            #   "_seed" + str(all_args.seed),
                         #  group=all_args.map_name,
                          dir=str(run_dir),
                          job_type="training",
                          reinit=True)
-        all_args = wandb.config # for wandb sweep
+        all_args = wandb.config # to use sweep, the training function should use the result from wand.config
     else:
         if not run_dir.exists():
             curr_run = 'run1'
         else:
+            
             exst_run_nums = [int(str(folder.name).split('run')[1]) for folder in run_dir.iterdir() if
                              str(folder.name).startswith('run')]
             if len(exst_run_nums) == 0:
@@ -190,7 +224,8 @@ def main(args):
             os.makedirs(str(run_dir))
 
     setproctitle.setproctitle(
-        str(all_args.algorithm_name) + "-" + str(all_args.env_name) + "-" + str(all_args.experiment_name) + "@" + str(
+        str(all_args.algorithm_name) + "-" + str(all_args.env_name) + "-" + str(all_args.experiment_name) + str(all_args.map_name) + "-" + 
+        str(all_args.units) + "@" + str(
             all_args.user_name))
 
     # seed
