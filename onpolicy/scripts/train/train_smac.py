@@ -142,16 +142,16 @@ def main(args):
     parser = get_config()
     all_args = parse_args(args, parser)
 
-    if all_args.random_search == True:
-        all_args.ppo_epoch = random.choices(PPO_EPOCH_RANGE, weights=PPO_EPOCH_PROB, k=1)[0]
-        all_args.clip_param = random.choices(CLIP_RANGE, weights=CLIP_PROB, k=1)[0]
-        all_args.gain = random.choices(GAIN_RANGE, weights=GAIN_PROB, k=1)[0]
-        all_args.algorithm_name = random.choices(ALGORITHM_RANGE, weights=ALGORITHM_PROB, k=1)[0]
+    # if all_args.random_search == True:
+    #     all_args.ppo_epoch = random.choices(PPO_EPOCH_RANGE, weights=PPO_EPOCH_PROB, k=1)[0]
+    #     all_args.clip_param = random.choices(CLIP_RANGE, weights=CLIP_PROB, k=1)[0]
+    #     all_args.gain = random.choices(GAIN_RANGE, weights=GAIN_PROB, k=1)[0]
+    #     all_args.algorithm_name = random.choices(ALGORITHM_RANGE, weights=ALGORITHM_PROB, k=1)[0]
 
-        print("ppo_epoch selected to be {}".format(all_args.ppo_epoch))
-        print("clip_param selected to be {}".format(all_args.clip_param))
-        print("gain selected to be {}".format(all_args.gain))
-        print("algorithm_name selected to be {}".format(all_args.algorithm_name))
+    #     print("ppo_epoch selected to be {}".format(all_args.ppo_epoch))
+    #     print("clip_param selected to be {}".format(all_args.clip_param))
+    #     print("gain selected to be {}".format(all_args.gain))
+    #     print("algorithm_name selected to be {}".format(all_args.algorithm_name))
 
 
 
@@ -165,10 +165,10 @@ def main(args):
         all_args.use_recurrent_policy = False 
         all_args.use_naive_recurrent_policy = False
 
-        if all_args.random_search == True:
-            all_args.use_stacked_frames = True
-            all_args.stacked_frames = random.choices(STACKED_FRAMES_RANGE, weights=STACKED_FRAMES_PROB, k=1)[0]
-            print("stacked_frames selected to be {}".format(all_args.stacked_frames))
+        # if all_args.random_search == True:
+        #     all_args.use_stacked_frames = True
+        #     all_args.stacked_frames = random.choices(STACKED_FRAMES_RANGE, weights=STACKED_FRAMES_PROB, k=1)[0]
+        #     print("stacked_frames selected to be {}".format(all_args.stacked_frames))
     
     elif all_args.algorithm_name == "ippo":
         print("u are choosing to use ippo, we set use_centralized_V to be False")

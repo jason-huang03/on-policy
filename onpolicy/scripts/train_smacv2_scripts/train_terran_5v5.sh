@@ -12,7 +12,7 @@ GPU_ID=$(echo ${GPU_FREE_MOST} | awk '{print $1}')
 GPU_FREE_MEM=$(echo ${GPU_FREE_MOST} | awk '{print $2}')
 CPU_USAGE=$(./cpu_usage.sh)
 
-echo "cpu usage is ${CPU_USAGE}%, training will start in 10 seconds"
+echo "cpu usage is ${CPU_USAGE}%, training will start in 5 seconds"
 
 sleep 5
 
@@ -30,4 +30,3 @@ do
     --hidden_size 64 --lr 2e-4 --recurrent_N 1
 done
 
-echo "training is going background"
