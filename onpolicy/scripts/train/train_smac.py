@@ -23,7 +23,7 @@ ALGORITHM_RANGE = ['mappo', 'rmappo']
 ALGORITHM_PROB = [0.3, 0.7]
 STACKED_FRAMES_RANGE = [1, 2, 4]
 STACKED_FRAMES_PROB = [0.3, 0.3, 0.4]
-
+TAGS = ['96_rollout_eval']
 
 def parse_smacv2_distribution(args):
     units = args.units.split('v')
@@ -205,6 +205,7 @@ def main(args):
                             #   "_seed" + str(all_args.seed),
                         #  group=all_args.map_name,
                          dir=str(run_dir),
+                         tags=TAGS,
                          job_type="training",
                          reinit=True)
         all_args = wandb.config # to use sweep, the training function should use the result from wand.config
