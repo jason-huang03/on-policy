@@ -28,5 +28,3 @@ do
     --num_env_steps 20000000 --ppo_epoch 5 --use_value_active_masks --use_eval --eval_episodes 32 \
     --gamma 0.99 --lambda 0.95 --huber_delta 10.0 --max_grad_norm 10.0 --data_chunk_length 10 --layer_N 2 
 done
-
-echo "training is going background"

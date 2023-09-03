@@ -32,7 +32,9 @@ def get_config():
             [for wandb usage], to specify user's name for simply collecting training data.
         --use_wandb
             [for wandb usage], by default True, will log date to wandb server. or else will use tensorboard to log data.
-    
+        --clip_param_decay
+            by default 0, will not decay clip_param. or else will decay clip_param.
+            
     Env parameters:
         --env_name <str>
             specify the name of environment
@@ -177,7 +179,7 @@ def get_config():
                         help='Number of environment steps to train (default: 10e6)')
     parser.add_argument("--user_name", type=str, default='marl',help="[for wandb usage], to specify user's name for simply collecting training data.")
     parser.add_argument("--use_wandb", action='store_false', default=True, help="[for wandb usage], by default True, will log date to wandb server. or else will use tensorboard to log data.")
-
+    parser.add_argument("--clip_param_decay", type=float, default=0, help="by default 0, will not decay clip_param. or else will decay clip_param.")
     # env parameters
     parser.add_argument("--env_name", type=str, default='StarCraft2', help="specify the name of environment")
     parser.add_argument("--use_obs_instead_of_state", action='store_true',

@@ -31,6 +31,7 @@ class Runner(object):
         self.use_centralized_V = self.all_args.use_centralized_V
         self.use_obs_instead_of_state = self.all_args.use_obs_instead_of_state
         self.num_env_steps = self.all_args.num_env_steps
+        self.total_num_steps = 0
         self.episode_length = self.all_args.episode_length
         self.n_rollout_threads = self.all_args.n_rollout_threads
         self.n_eval_rollout_threads = self.all_args.n_eval_rollout_threads
@@ -120,7 +121,7 @@ class Runner(object):
     def train(self):
         """Train policies with data in buffer. """
         self.trainer.prep_training()
-        train_infos = self.trainer.train(self.buffer)      
+        train_infos = self.trainer.train(self.buffer, total_num_steps=self.total_num_steps)      
         self.buffer.after_update()
         return train_infos
 

@@ -20,8 +20,12 @@ class R_MAPPO():
         self.device = device
         self.tpdv = dict(dtype=torch.float32, device=device)
         self.policy = policy
+        self.num_env_steps = args.num_env_steps
+        self.total_num_steps = 0
+        self.clip_param_decay = args.clip_param_decay
 
         self.clip_param = args.clip_param
+        self.value_clip_param = args.clip_param
         self.ppo_epoch = args.ppo_epoch
         self.num_mini_batch = args.num_mini_batch
         self.data_chunk_length = args.data_chunk_length
@@ -59,8 +63,8 @@ class R_MAPPO():
 
         :return value_loss: (torch.Tensor) value function loss.
         """
-        value_pred_clipped = value_preds_batch + (values - value_preds_batch).clamp(-self.clip_param,
-                                                                                        self.clip_param)
+        value_pred_clipped = value_preds_batch + (values - value_preds_batch).clamp(-self.value_clip_param,
+                                                                                        self.value_clip_param)
         if self._use_popart or self._use_valuenorm:
             self.value_normalizer.update(return_batch)
             error_clipped = self.value_normalizer.normalize(return_batch) - value_pred_clipped
@@ -123,8 +127,13 @@ class R_MAPPO():
         # actor update
         imp_weights = torch.exp(action_log_probs - old_action_log_probs_batch)
 
+        # let clip param decay with time
+        assert self.clip_param_decay >= 0.0 and self.clip_param_decay <= 1.0, "clip_param_decay must be in [0, 1]"
+        assert self.total_num_steps <= self.num_env_steps, "total_num_steps must be less than or equal to num_env_steps"
+        clip_param = self.clip_param * (1 - self.clip_param_decay * self.total_num_steps / self.num_env_steps)
+
         surr1 = imp_weights * adv_targ
-        surr2 = torch.clamp(imp_weights, 1.0 - self.clip_param, 1.0 + self.clip_param) * adv_targ
+        surr2 = torch.clamp(imp_weights, 1.0 - clip_param, 1.0 + clip_param) * adv_targ
 
         if self._use_policy_active_masks:
             policy_action_loss = (-torch.sum(torch.min(surr1, surr2),
@@ -163,7 +172,7 @@ class R_MAPPO():
 
         return value_loss, critic_grad_norm, policy_loss, dist_entropy, actor_grad_norm, imp_weights
 
-    def train(self, buffer, update_actor=True):
+    def train(self, buffer, update_actor=True, total_num_steps=0):
         """
         Perform a training update using minibatch GD.
         :param buffer: (SharedReplayBuffer) buffer containing training data.
@@ -171,6 +180,8 @@ class R_MAPPO():
 
         :return train_info: (dict) contains information regarding training update (e.g. loss, grad norms, etc).
         """
+        self.total_num_steps = total_num_steps
+
         if self._use_popart or self._use_valuenorm:
             advantages = buffer.returns[:-1] - self.value_normalizer.denormalize(buffer.value_preds[:-1])
         else:

@@ -45,7 +45,8 @@ class SMACRunner(Runner):
             train_infos = self.train()
             
             # post process
-            total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads           
+            total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads   
+            self.total_num_steps = total_num_steps        
             # save model
             if (episode % self.save_interval == 0 or episode == episodes - 1):
                 self.save()
@@ -59,7 +60,7 @@ class SMACRunner(Runner):
                                 self.experiment_name,
                                 episode,
                                 episodes,
-                                total_num_steps,
+                                self.total_num_steps,
                                 self.num_env_steps,
                                 int(total_num_steps / (end - start))))
 

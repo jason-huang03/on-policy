@@ -23,7 +23,7 @@ ALGORITHM_RANGE = ['mappo', 'rmappo']
 ALGORITHM_PROB = [0.3, 0.7]
 STACKED_FRAMES_RANGE = [1, 2, 4]
 STACKED_FRAMES_PROB = [0.3, 0.3, 0.4]
-TAGS = ['96_rollout_eval']
+TAGS = ['clip_param test', 'clip_param_decay_test']
 
 def parse_smacv2_distribution(args):
     units = args.units.split('v')
