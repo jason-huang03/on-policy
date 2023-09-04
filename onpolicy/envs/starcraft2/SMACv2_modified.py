@@ -27,11 +27,14 @@ class SMACv2(StarCraftCapabilityEnvWrapper):
         return obs, state, avail_actions
 
     def step(self, actions):
-        reward, terminated, info = super().step(actions)
+        reward, terminated, dones, info = super().step(actions)
         local_obs = self.get_obs()
         global_state = np.array([self.env.get_state_agent(agent_id) for agent_id in range(self.env.n_agents)])
         rewards = [[reward]] * self.env.n_agents
-        dones = [terminated] * self.env.n_agents
+        
+        if terminated:
+            dones = [True] * self.env.n_agents
+
         infos = [info] * self.env.n_agents
         avail_actions = [self.get_avail_agent_actions(i) for i in range(self.env.n_agents)]
         

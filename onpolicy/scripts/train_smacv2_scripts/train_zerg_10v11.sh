@@ -25,7 +25,7 @@ do
     echo "seed is ${seed}:"
     CUDA_VISIBLE_DEVICES=$GPU_ID python ../train/train_smac.py --env_name ${env} --algorithm_name ${algo} --experiment_name ${exp} \
     --map_name ${map} --seed ${seed} --units ${units} --n_training_threads 1 --n_rollout_threads 8 --num_mini_batch 1 --episode_length 400 \
-    --num_env_steps 20000000 --ppo_epoch 5 --clip_param 0.05 --clip_param_decay 0.7 --use_value_active_masks --use_eval --eval_episodes 32 \
+    --num_env_steps 20000000 --ppo_epoch 5 --clip_param 0.05 --use_value_active_masks --use_eval --eval_episodes 32 \
     --gamma 0.99 --lambda 0.95 --huber_delta 10.0 --max_grad_norm 10.0 --data_chunk_length 10 --layer_N 2 
 done
 

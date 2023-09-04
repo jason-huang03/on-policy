@@ -23,7 +23,7 @@ ALGORITHM_RANGE = ['mappo', 'rmappo']
 ALGORITHM_PROB = [0.3, 0.7]
 STACKED_FRAMES_RANGE = [1, 2, 4]
 STACKED_FRAMES_PROB = [0.3, 0.3, 0.4]
-TAGS = ['clip_param test', 'clip_param_decay_test']
+TAGS = ['dones bug fixed']
 
 def parse_smacv2_distribution(args):
     units = args.units.split('v')
@@ -82,7 +82,7 @@ def make_train_env(all_args):
             return env
 
         return init_env
-
+        
     if all_args.n_rollout_threads == 1:
         return ShareDummyVecEnv([get_env_fn(0)])
     else:
@@ -132,15 +132,18 @@ def parse_args(args, parser):
     parser.add_argument("--use_state_agent", action='store_false', default=True)
     parser.add_argument("--use_mustalive", action='store_false', default=True)
     parser.add_argument("--add_center_xy", action='store_false', default=True)
+    parser.add_argument("--test", action='store_true', default=False)
 
     all_args = parser.parse_known_args(args)[0]
-
+    if all_args.test:
+        all_args.use_wandb = False
     return all_args
 
 
 def main(args):
     parser = get_config()
     all_args = parse_args(args, parser)
+
 
     # if all_args.random_search == True:
     #     all_args.ppo_epoch = random.choices(PPO_EPOCH_RANGE, weights=PPO_EPOCH_PROB, k=1)[0]

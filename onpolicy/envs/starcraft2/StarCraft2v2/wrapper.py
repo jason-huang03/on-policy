@@ -78,8 +78,15 @@ class StarCraftCapabilityEnvWrapper(MultiAgentEnv):
         return self.env.render()
 
     def step(self, actions):
-        return self.env.step(actions)
+        reward, terminated, info = self.env.step(actions)
+        dones = []
+        for i in range(self.env.n_agents):
+            if self.env.death_tracker_ally[i]:
+                dones.append(True)
+            else:
+                dones.append(False)
 
+        return reward, terminated, dones, info
     def get_stats(self):
         return self.env.get_stats()
 
